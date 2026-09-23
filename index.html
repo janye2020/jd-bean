@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#c8161d" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="领京豆" />
+  <title>领京豆入口</title>
+  <style>
+    :root {
+      --bg: #f6f3ef;
+      --bg-accent: #efe8e0;
+      --surface: #fffdf9;
+      --ink: #1a1410;
+      --muted: #6b6158;
+      --line: #e4ddd4;
+      --brand: #c8161d;
+      --brand-deep: #9e1016;
+      --ok: #1f7a4c;
+      --ok-bg: #e7f5ee;
+      --shadow: 0 10px 30px rgba(26, 20, 16, 0.06);
+      --radius: 16px;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, #f8d9d6 0%, transparent 55%),
+        radial-gradient(900px 500px at 100% 0%, #f0e6d4 0%, transparent 50%),
+        var(--bg);
+      line-height: 1.45;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .wrap {
+      width: min(560px, 100%);
+      margin: 0 auto;
+      padding: 20px 16px calc(28px + var(--safe-bottom));
+    }
+
+    header {
+      padding: 8px 4px 18px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--brand);
+    }
+
+    .brand-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--brand);
+      box-shadow: 0 0 0 4px rgba(200, 22, 29, 0.12);
+    }
+
+    h1 {
+      margin: 10px 0 6px;
+      font-size: clamp(28px, 7vw, 34px);
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 18px 0 14px;
+    }
+
+    button, .btn {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    button:active, .btn:active { transform: scale(0.97); }
+    button.primary {
+      background: var(--brand);
+      border-color: var(--brand);
+      color: #fff;
+    }
+    button.ghost:hover, .btn:hover { border-color: #cfc5ba; background: #fff; }
+
+    .hint {
+      margin: 0 0 16px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: var(--bg-accent);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .hint strong { color: var(--ink); font-weight: 650; }
+
+    .list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .item {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 14px;
+      border-radius: var(--radius);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      transition: opacity 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .item.done {
+      opacity: 0.55;
+      background: #f3efe9;
+    }
+
+    .check {
+      width: 22px;
+      height: 22px;
+      border-radius: 7px;
+      border: 1.5px solid #c9bfb4;
+      background: #fff;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .item.done .check {
+      background: var(--ok);
+      border-color: var(--ok);
+      color: #fff;
+    }
+
+    .check svg { width: 12px; height: 12px; opacity: 0; }
+    .item.done .check svg { opacity: 1; }
+
+    .meta { min-width: 0; }
+    .name {
+      font-size: 15px;
+      font-weight: 700;
+      margin: 0 0 2px;
+    }
+    .desc {
+      margin: 0;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tags {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      font-size: 11px;
+      font-weight: 650;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: #f1ebe3;
+      color: #5d534b;
+    }
+
+    .tag.jd { background: #fde8e9; color: var(--brand-deep); }
+    .tag.jr { background: #e8eefc; color: #2a4ea3; }
+    .tag.custom { background: var(--ok-bg); color: var(--ok); }
+
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .actions button {
+      min-width: 72px;
+      padding: 8px 10px;
+      border-radius: 10px;
+    }
+
+    .actions .open-app {
+      background: var(--brand);
+      border-color: var(--brand);
+      color: #fff;
+    }
+
+    .section-title {
+      margin: 22px 0 10px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+
+    .panel {
+      padding: 14px;
+      border-radius: var(--radius);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    label {
+      font-size: 12px;
+      font-weight: 650;
+      color: var(--muted);
+    }
+
+    input, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 11px 12px;
+      font: inherit;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    input:focus, select:focus {
+      outline: 2px solid rgba(200, 22, 29, 0.2);
+      border-color: #e29a9d;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    footer {
+      margin-top: 22px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(24px + var(--safe-bottom));
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(26, 20, 16, 0.92);
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 20;
+      max-width: calc(100% - 32px);
+      text-align: center;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand"><span class="brand-dot"></span>京豆入口</div>
+      <h1>每日领京豆</h1>
+      <p class="lead">点「打开 App」跳进官方页面，在京东里手动领取。本页不代领、不收集账号。</p>
+    </header>
+
+    <div class="toolbar">
+      <button type="button" class="primary" id="btnReset">重置今日勾选</button>
+      <button type="button" class="ghost" id="btnExport">导出链接</button>
+      <button type="button" class="ghost" id="btnImport">导入链接</button>
+    </div>
+
+    <p class="hint">
+      <strong>手机用法：</strong>用浏览器打开本文件 → 添加到主屏幕 / 收藏为书签。
+      若唤起失败，会改用浏览器打开 H5。链接失效时可在下方自行增删。
+    </p>
+
+    <div class="list" id="list"></div>
+
+    <div class="section-title">添加自定义入口</div>
+    <form class="panel" id="addForm">
+      <div class="field">
+        <label for="name">名称</label>
+        <input id="name" name="name" placeholder="例如：某馆每日签到" required maxlength="40" />
+      </div>
+      <div class="field">
+        <label for="url">H5 链接</label>
+        <input id="url" name="url" type="url" placeholder="https://..." required />
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="app">打开方式</label>
+          <select id="app" name="app">
+            <option value="jd">京东 App</option>
+            <option value="jdjr">京东金融 App</option>
+            <option value="web">仅浏览器</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="note">备注（可选）</label>
+          <input id="note" name="note" placeholder="例如：每晚 8 点" maxlength="40" />
+        </div>
+      </div>
+      <button type="submit" class="primary" style="width:100%;border-radius:12px;">添加入口</button>
+    </form>
+
+    <footer>
+      入口来自公开活动页，京东可能会改地址；失效后请用 App 内「分享」复制新链接替换。
+    </footer>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    const STORAGE_CUSTOM = "jd-bean-custom-v1";
+    const STORAGE_DONE = "jd-bean-done-v1";
+
+    /** 内置入口：可随时在页面删除；失效后用自定义替换即可 */
+    const BUILTIN = [
+      {
+        id: "bean-home",
+        name: "领京豆 / 签到",
+        url: "https://bean.m.jd.com/",
+        app: "jd",
+        note: "签到、进店领豆、抽京豆入口"
+      },
+      {
+        id: "bean-sign",
+        name: "签到领京豆",
+        url: "https://bean.m.jd.com/bean/signIndex.action",
+        app: "jd",
+        note: "每日签到"
+      },
+      {
+        id: "plant-bean",
+        name: "种豆得豆",
+        url: "https://plantearth.m.jd.com/",
+        app: "jd",
+        note: "若打不开，从领京豆页进"
+      },
+      {
+        id: "turntable",
+        name: "京豆大转盘",
+        url: "https://turntable.m.jd.com/?actId=jgpqtzjhvaoym&appSource=jdhome",
+        app: "jd",
+        note: "活动页可能下线"
+      },
+      {
+        id: "market-sign",
+        name: "京东超市签到",
+        url: "https://pro.m.jd.com/mall/active/aNCM6yrzD6qp1Vvh5YTzeJtk7cM/index.html",
+        app: "jd",
+        note: "超市签到有礼"
+      },
+      {
+        id: "paipai",
+        name: "拍拍二手签到",
+        url: "https://pro.m.jd.com/mall/active/3S28janPLYmtFxypu37AYAGgivfp/index.html",
+        app: "jd",
+        note: "二手频道签到"
+      },
+      {
+        id: "vip-reward",
+        name: "会员领京豆",
+        url: "https://vip.jd.com/newPage/reward",
+        app: "jd",
+        note: "会员权益页"
+      },
+      {
+        id: "jr-coin",
+        name: "金融金币抽奖",
+        url: "https://m.jr.jd.com/member/coinlottery/index.html#/",
+        app: "jdjr",
+        note: "建议用京东金融打开"
+      },
+      {
+        id: "jr-bounce",
+        name: "金融每日蹦一蹦",
+        url: "https://red-e.jd.com/resources/pineapple/index.html",
+        app: "jdjr",
+        note: "金融活动，常变更"
+      }
+    ];
+
+    function todayKey() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
+    }
+
+    function loadCustom() {
+      try {
+        const raw = localStorage.getItem(STORAGE_CUSTOM);
+        const list = raw ? JSON.parse(raw) : [];
+        return Array.isArray(list) ? list : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveCustom(list) {
+      localStorage.setItem(STORAGE_CUSTOM, JSON.stringify(list));
+    }
+
+    function loadDone() {
+      try {
+        const raw = localStorage.getItem(STORAGE_DONE);
+        const data = raw ? JSON.parse(raw) : null;
+        if (!data || data.date !== todayKey()) return new Set();
+        return new Set(Array.isArray(data.ids) ? data.ids : []);
+      } catch {
+        return new Set();
+      }
+    }
+
+    function saveDone(set) {
+      localStorage.setItem(
+        STORAGE_DONE,
+        JSON.stringify({ date: todayKey(), ids: [...set] })
+      );
+    }
+
+    function toast(msg) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.add("show");
+      clearTimeout(toast._t);
+      toast._t = setTimeout(() => el.classList.remove("show"), 2200);
+    }
+
+    function buildJdOpenApp(url) {
+      const params = {
+        category: "jump",
+        des: "m",
+        url
+      };
+      return "openApp.jdMobile://virtual?params=" + encodeURIComponent(JSON.stringify(params));
+    }
+
+    function buildJrOpenApp(url) {
+      // 常见金融唤起；失败时由调用方回退到 H5
+      return "openjdjrapp://com.jd.jrapp/webview?url=" + encodeURIComponent(url);
+    }
+
+    function openLink(item) {
+      const url = item.url;
+      let scheme = null;
+      if (item.app === "jd") scheme = buildJdOpenApp(url);
+      if (item.app === "jdjr") scheme = buildJrOpenApp(url);
+
+      if (!scheme) {
+        window.open(url, "_blank", "noopener,noreferrer");
+        return;
+      }
+
+      const start = Date.now();
+      const iframe = document.createElement("iframe");
+      iframe.style.display = "none";
+      iframe.src = scheme;
+      document.body.appendChild(iframe);
+
+      // 部分浏览器更吃 location / a.click
+      try {
+        const a = document.createElement("a");
+        a.href = scheme;
+        a.style.display = "none";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      } catch (_) {}
+
+      setTimeout(() => {
+        iframe.remove();
+        // 若短时间内仍停在本页，视为唤起失败，打开 H5
+        if (Date.now() - start < 1600 && !document.hidden) {
+          window.location.href = url;
+        }
+      }, 900);
+    }
+
+    function allItems() {
+      const custom = loadCustom().map((x) => ({ ...x, custom: true }));
+      return [...custom, ...BUILTIN];
+    }
+
+    function render() {
+      const done = loadDone();
+      const list = document.getElementById("list");
+      const items = allItems();
+      list.innerHTML = "";
+
+      items.forEach((item) => {
+        const isDone = done.has(item.id);
+        const el = document.createElement("article");
+        el.className = "item" + (isDone ? " done" : "");
+        el.dataset.id = item.id;
+
+        const appTag =
+          item.app === "jdjr" ? "金融" : item.app === "web" ? "浏览器" : "京东";
+        const appClass =
+          item.app === "jdjr" ? "jr" : item.app === "web" ? "" : "jd";
+
+        el.innerHTML = `
+          <button type="button" class="check" aria-label="标记已领" title="标记今日已领">
+            <svg viewBox="0 0 12 12" fill="none" aria-hidden="true">
+              <path d="M2.5 6.2L4.8 8.5L9.5 3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div class="meta">
+            <p class="name"></p>
+            <p class="desc"></p>
+            <div class="tags">
+              <span class="tag ${appClass}">${appTag}</span>
+              ${item.custom ? '<span class="tag custom">自定义</span>' : ""}
+            </div>
+          </div>
+          <div class="actions">
+            <button type="button" class="open-app">打开 App</button>
+            <button type="button" class="open-web">H5</button>
+            ${item.custom ? '<button type="button" class="del">删除</button>' : ""}
+          </div>
+        `;
+
+        el.querySelector(".name").textContent = item.name;
+        el.querySelector(".desc").textContent = item.note || item.url;
+
+        el.querySelector(".check").addEventListener("click", () => {
+          const set = loadDone();
+          if (set.has(item.id)) set.delete(item.id);
+          else set.add(item.id);
+          saveDone(set);
+          render();
+        });
+
+        el.querySelector(".open-app").addEventListener("click", () => {
+          openLink(item);
+          const set = loadDone();
+          set.add(item.id);
+          saveDone(set);
+          render();
+          toast("已尝试打开，请在 App 内领取");
+        });
+
+        el.querySelector(".open-web").addEventListener("click", () => {
+          window.open(item.url, "_blank", "noopener,noreferrer");
+        });
+
+        const del = el.querySelector(".del");
+        if (del) {
+          del.addEventListener("click", () => {
+            const next = loadCustom().filter((x) => x.id !== item.id);
+            saveCustom(next);
+            const set = loadDone();
+            set.delete(item.id);
+            saveDone(set);
+            render();
+            toast("已删除自定义入口");
+          });
+        }
+
+        list.appendChild(el);
+      });
+    }
+
+    document.getElementById("addForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const name = form.name.value.trim();
+      const url = form.url.value.trim();
+      const app = form.app.value;
+      const note = form.note.value.trim();
+      if (!/^https?:\/\//i.test(url)) {
+        toast("请填写以 http(s) 开头的链接");
+        return;
+      }
+      const list = loadCustom();
+      list.unshift({
+        id: "c-" + Date.now().toString(36),
+        name,
+        url,
+        app,
+        note
+      });
+      saveCustom(list);
+      form.reset();
+      render();
+      toast("已添加");
+    });
+
+    document.getElementById("btnReset").addEventListener("click", () => {
+      saveDone(new Set());
+      render();
+      toast("今日勾选已清空");
+    });
+
+    document.getElementById("btnExport").addEventListener("click", async () => {
+      const payload = JSON.stringify(loadCustom(), null, 2);
+      try {
+        await navigator.clipboard.writeText(payload);
+        toast("自定义链接已复制到剪贴板");
+      } catch {
+        prompt("复制以下 JSON：", payload);
+      }
+    });
+
+    document.getElementById("btnImport").addEventListener("click", () => {
+      const raw = prompt("粘贴自定义入口 JSON 数组：");
+      if (raw == null || !raw.trim()) return;
+      try {
+        const data = JSON.parse(raw);
+        if (!Array.isArray(data)) throw new Error("not array");
+        const cleaned = data
+          .filter((x) => x && x.name && x.url)
+          .map((x) => ({
+            id: x.id || "c-" + Math.random().toString(36).slice(2, 9),
+            name: String(x.name).slice(0, 40),
+            url: String(x.url),
+            app: ["jd", "jdjr", "web"].includes(x.app) ? x.app : "jd",
+            note: x.note ? String(x.note).slice(0, 40) : ""
+          }));
+        saveCustom(cleaned);
+        render();
+        toast(`已导入 ${cleaned.length} 条`);
+      } catch {
+        toast("导入失败，请检查 JSON 格式");
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>
