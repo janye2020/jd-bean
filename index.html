@@ -316,8 +316,8 @@
     </div>
 
     <p class="hint">
-      <strong>手机用法：</strong>用浏览器打开本文件 → 添加到主屏幕 / 收藏为书签。
-      若唤起失败，会改用浏览器打开 H5。链接失效时可在下方自行增删。
+      <strong>手机用法：</strong>打开本页 → 添加到主屏幕 / 收藏。
+      若出现「网络连接不佳 / JFE 52」，多半是活动页已下线或被网关拦截（不是真断网），请换用下方仍可用入口，或在 App 内「分享」复制新链接自行添加。
     </p>
 
     <div class="list" id="list"></div>
@@ -360,35 +360,24 @@
     const STORAGE_CUSTOM = "jd-bean-custom-v1";
     const STORAGE_DONE = "jd-bean-done-v1";
 
-    /** 内置入口：可随时在页面删除；失效后用自定义替换即可 */
+    /**
+     * 内置入口（已剔除会直接跳 JFE 52 的旧域名，如 bean.m.jd.com / plantearth.m.jd.com）
+     * 失效后请用 App 内分享链接，在下方「自定义」添加。
+     */
     const BUILTIN = [
       {
-        id: "bean-home",
+        id: "bean-sign-rn",
         name: "领京豆 / 签到",
-        url: "https://bean.m.jd.com/",
+        url: "https://pro.m.jd.com/mall/active/Md9FMi1pJXg2q7qc8CmE9FNYDS4/index.html?babelChannel=ttt33",
         app: "jd",
-        note: "签到、进店领豆、抽京豆入口"
+        note: "当前可用的领京豆活动页"
       },
       {
-        id: "bean-sign",
-        name: "签到领京豆",
-        url: "https://bean.m.jd.com/bean/signIndex.action",
+        id: "shake-bean",
+        name: "摇京豆",
+        url: "https://spa.jd.com/home",
         app: "jd",
-        note: "每日签到"
-      },
-      {
-        id: "plant-bean",
-        name: "种豆得豆",
-        url: "https://plantearth.m.jd.com/",
-        app: "jd",
-        note: "若打不开，从领京豆页进"
-      },
-      {
-        id: "turntable",
-        name: "京豆大转盘",
-        url: "https://turntable.m.jd.com/?actId=jgpqtzjhvaoym&appSource=jdhome",
-        app: "jd",
-        note: "活动页可能下线"
+        note: "摇一摇领豆"
       },
       {
         id: "market-sign",
@@ -405,6 +394,27 @@
         note: "二手频道签到"
       },
       {
+        id: "pet-sign",
+        name: "宠物馆签到",
+        url: "https://pro.m.jd.com/mall/active/3GCjZzanFWbJEU4xYEjqfPfovokM/index.html",
+        app: "jd",
+        note: "分馆签到"
+      },
+      {
+        id: "care-sign",
+        name: "个护签到",
+        url: "https://pro.m.jd.com/mall/active/NJ1kd1PJWhwvhtim73VPsD1HwY3/index.html",
+        app: "jd",
+        note: "分馆签到"
+      },
+      {
+        id: "book-sign",
+        name: "图书签到",
+        url: "https://pro.m.jd.com/mall/active/3SC6rw5iBg66qrXPGmZMqFDwcyXi/index.html",
+        app: "jd",
+        note: "分馆签到"
+      },
+      {
         id: "vip-reward",
         name: "会员领京豆",
         url: "https://vip.jd.com/newPage/reward",
@@ -412,18 +422,39 @@
         note: "会员权益页"
       },
       {
-        id: "jr-coin",
-        name: "金融金币抽奖",
-        url: "https://m.jr.jd.com/member/coinlottery/index.html#/",
+        id: "joy-pet",
+        name: "宠汪汪",
+        url: "https://h5.m.jd.com/babelDiy/Zeus/2wuqXrZrhygTQzYA7VufBEpj4amH/index.html?babelChannel=ttt66",
+        app: "jd",
+        note: "养成玩法，活动常变更"
+      },
+      {
+        id: "jr-sign",
+        name: "金融每日签到",
+        url: "https://member.jr.jd.com/activity/sign/v5/indexV2.html?id=7038",
         app: "jdjr",
         note: "建议用京东金融打开"
       },
       {
-        id: "jr-bounce",
-        name: "金融每日蹦一蹦",
-        url: "https://red-e.jd.com/resources/pineapple/index.html",
+        id: "jr-coin",
+        name: "金融金币抽奖",
+        url: "https://m.jr.jd.com/member/coinlottery/index.html",
         app: "jdjr",
-        note: "金融活动，常变更"
+        note: "金融活动"
+      },
+      {
+        id: "jr-pig",
+        name: "金融养猪猪",
+        url: "https://u.jr.jd.com/uc-fe-wxgrowing/cloudpig/index/?channelLV=wojing",
+        app: "jdjr",
+        note: "金融养成玩法"
+      },
+      {
+        id: "plant-bean-tip",
+        name: "种豆得豆（App 内）",
+        url: "https://m.jd.com/",
+        app: "jd",
+        note: "旧 H5 已失效：首页 → 领京豆 → 种豆得豆"
       }
     ];
 
@@ -476,53 +507,77 @@
     }
 
     function buildJdOpenApp(url) {
+      // 补充 sourceType 等字段，减少 App 内 WebView 异常页
       const params = {
         category: "jump",
         des: "m",
-        url
+        url,
+        sourceType: "JSHOP_SOURCE_TYPE",
+        sourceValue: "JSHOP_SOURCE_VALUE",
+        M_sourceFrom: "h5auto",
+        msf_type: "auto"
       };
-      return "openApp.jdMobile://virtual?params=" + encodeURIComponent(JSON.stringify(params));
+      const encoded = encodeURIComponent(JSON.stringify(params));
+      // Android 上小写 scheme 更稳；iOS 两种都能识别
+      return "openapp.jdmobile://virtual?params=" + encoded;
+    }
+
+    function buildJdIntent(url) {
+      const params = {
+        category: "jump",
+        des: "m",
+        url,
+        sourceType: "JSHOP_SOURCE_TYPE",
+        sourceValue: "JSHOP_SOURCE_VALUE"
+      };
+      const encoded = encodeURIComponent(JSON.stringify(params));
+      const fallback = encodeURIComponent(url);
+      return (
+        "intent://virtual?params=" +
+        encoded +
+        "#Intent;scheme=openapp.jdmobile;package=com.jingdong.app.mall;S.browser_fallback_url=" +
+        fallback +
+        ";end"
+      );
     }
 
     function buildJrOpenApp(url) {
-      // 常见金融唤起；失败时由调用方回退到 H5
       return "openjdjrapp://com.jd.jrapp/webview?url=" + encodeURIComponent(url);
+    }
+
+    function isAndroid() {
+      return /Android/i.test(navigator.userAgent);
     }
 
     function openLink(item) {
       const url = item.url;
+      if (item.app === "web") {
+        location.href = url;
+        return;
+      }
+
       let scheme = null;
-      if (item.app === "jd") scheme = buildJdOpenApp(url);
-      if (item.app === "jdjr") scheme = buildJrOpenApp(url);
+      if (item.app === "jd") {
+        scheme = isAndroid() ? buildJdIntent(url) : buildJdOpenApp(url);
+      } else if (item.app === "jdjr") {
+        scheme = buildJrOpenApp(url);
+      }
 
       if (!scheme) {
-        window.open(url, "_blank", "noopener,noreferrer");
+        location.href = url;
         return;
       }
 
       const start = Date.now();
-      const iframe = document.createElement("iframe");
-      iframe.style.display = "none";
-      iframe.src = scheme;
-      document.body.appendChild(iframe);
-
-      // 部分浏览器更吃 location / a.click
-      try {
-        const a = document.createElement("a");
-        a.href = scheme;
-        a.style.display = "none";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-      } catch (_) {}
+      // 只用一次跳转，避免 iframe + a.click 连发导致 App 打开异常页
+      location.href = scheme;
 
       setTimeout(() => {
-        iframe.remove();
-        // 若短时间内仍停在本页，视为唤起失败，打开 H5
-        if (Date.now() - start < 1600 && !document.hidden) {
-          window.location.href = url;
+        if (document.hidden) return;
+        if (Date.now() - start < 2200) {
+          location.href = url;
         }
-      }, 900);
+      }, 1200);
     }
 
     function allItems() {
