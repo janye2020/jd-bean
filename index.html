@@ -198,6 +198,18 @@
     .tag.jd { background: #fde8e9; color: var(--brand-deep); }
     .tag.jr { background: #e8eefc; color: #2a4ea3; }
     .tag.custom { background: var(--ok-bg); color: var(--ok); }
+    .tag.ok { background: var(--ok-bg); color: var(--ok); }
+    .tag.path { background: #fff3df; color: #8a5a12; }
+    .tag.warn { background: #f3efe9; color: #6b6158; }
+
+    .group-title {
+      margin: 18px 0 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+    .group-title:first-child { margin-top: 4px; }
 
     .actions {
       display: flex;
@@ -316,8 +328,8 @@
     </div>
 
     <p class="hint">
-      <strong>手机用法：</strong>打开本页 → 添加到主屏幕 / 收藏。
-      若出现「网络连接不佳 / JFE 52」，多半是活动页已下线或被网关拦截（不是真断网），请换用下方仍可用入口，或在 App 内「分享」复制新链接自行添加。
+      <strong>说明：</strong>很多旧「频道签到」外链已被改成导购/秒杀页，能打开但看不到签到——属于活动改版，不是你的网络问题。
+      稳妥做法：App 内搜「领京豆」，或打开活动后点分享，把链接加到下方「自定义」。
     </p>
 
     <div class="list" id="list"></div>
@@ -350,7 +362,7 @@
     </form>
 
     <footer>
-      入口来自公开活动页，京东可能会改地址；失效后请用 App 内「分享」复制新链接替换。
+      京东常改版：能打开不等于还有签到。优先用「App 路径」或自定义分享链接。
     </footer>
   </div>
 
@@ -361,102 +373,112 @@
     const STORAGE_DONE = "jd-bean-done-v1";
 
     /**
-     * 内置入口（已剔除会直接跳 JFE 52 的旧域名，如 bean.m.jd.com / plantearth.m.jd.com）
-     * 失效后请用 App 内分享链接，在下方「自定义」添加。
+     * status:
+     *  - direct: 页面本身仍含签到/领豆相关内容（仍可能改版）
+     *  - path:   无稳定外链，打开 App 后按备注路径操作
+     *  - play:   养成/抽奖类，不一定是「每日签到」按钮
      */
-    const BUILTIN = [
+    const GROUPS = [
       {
-        id: "bean-sign-rn",
-        name: "领京豆 / 签到",
-        url: "https://pro.m.jd.com/mall/active/Md9FMi1pJXg2q7qc8CmE9FNYDS4/index.html?babelChannel=ttt33",
-        app: "jd",
-        note: "当前可用的领京豆活动页"
+        title: "仍可能直达签到（外链实测）",
+        items: [
+          {
+            id: "paipai",
+            name: "拍拍二手签到",
+            url: "https://pro.m.jd.com/mall/active/3S28janPLYmtFxypu37AYAGgivfp/index.html",
+            app: "jd",
+            status: "direct",
+            note: "标题仍为「签到有礼」，页面内找签到按钮"
+          },
+          {
+            id: "jr-sign",
+            name: "金融每日签到",
+            url: "https://member.jr.jd.com/activity/sign/v5/indexV2.html?id=7038",
+            app: "jdjr",
+            status: "direct",
+            note: "建议用京东金融打开；需登录"
+          },
+          {
+            id: "jr-coin",
+            name: "金融金币翻翻翻",
+            url: "https://m.jr.jd.com/member/coinlottery/index.html",
+            app: "jdjr",
+            status: "play",
+            note: "金币活动，不是京豆签到"
+          }
+        ]
       },
       {
-        id: "shake-bean",
-        name: "摇京豆",
-        url: "https://spa.jd.com/home",
-        app: "jd",
-        note: "摇一摇领豆"
-      },
-      {
-        id: "market-sign",
-        name: "京东超市签到",
-        url: "https://pro.m.jd.com/mall/active/aNCM6yrzD6qp1Vvh5YTzeJtk7cM/index.html",
-        app: "jd",
-        note: "超市签到有礼"
-      },
-      {
-        id: "paipai",
-        name: "拍拍二手签到",
-        url: "https://pro.m.jd.com/mall/active/3S28janPLYmtFxypu37AYAGgivfp/index.html",
-        app: "jd",
-        note: "二手频道签到"
-      },
-      {
-        id: "pet-sign",
-        name: "宠物馆签到",
-        url: "https://pro.m.jd.com/mall/active/3GCjZzanFWbJEU4xYEjqfPfovokM/index.html",
-        app: "jd",
-        note: "分馆签到"
-      },
-      {
-        id: "care-sign",
-        name: "个护签到",
-        url: "https://pro.m.jd.com/mall/active/NJ1kd1PJWhwvhtim73VPsD1HwY3/index.html",
-        app: "jd",
-        note: "分馆签到"
-      },
-      {
-        id: "book-sign",
-        name: "图书签到",
-        url: "https://pro.m.jd.com/mall/active/3SC6rw5iBg66qrXPGmZMqFDwcyXi/index.html",
-        app: "jd",
-        note: "分馆签到"
-      },
-      {
-        id: "vip-reward",
-        name: "会员领京豆",
-        url: "https://vip.jd.com/newPage/reward",
-        app: "jd",
-        note: "会员权益页"
-      },
-      {
-        id: "joy-pet",
-        name: "宠汪汪",
-        url: "https://h5.m.jd.com/babelDiy/Zeus/2wuqXrZrhygTQzYA7VufBEpj4amH/index.html?babelChannel=ttt66",
-        app: "jd",
-        note: "养成玩法，活动常变更"
-      },
-      {
-        id: "jr-sign",
-        name: "金融每日签到",
-        url: "https://member.jr.jd.com/activity/sign/v5/indexV2.html?id=7038",
-        app: "jdjr",
-        note: "建议用京东金融打开"
-      },
-      {
-        id: "jr-coin",
-        name: "金融金币抽奖",
-        url: "https://m.jr.jd.com/member/coinlottery/index.html",
-        app: "jdjr",
-        note: "金融活动"
-      },
-      {
-        id: "jr-pig",
-        name: "金融养猪猪",
-        url: "https://u.jr.jd.com/uc-fe-wxgrowing/cloudpig/index/?channelLV=wojing",
-        app: "jdjr",
-        note: "金融养成玩法"
-      },
-      {
-        id: "plant-bean-tip",
-        name: "种豆得豆（App 内）",
-        url: "https://m.jd.com/",
-        app: "jd",
-        note: "旧 H5 已失效：首页 → 领京豆 → 种豆得豆"
+        title: "App 内路径（外链已失效/改版）",
+        items: [
+          {
+            id: "path-bean",
+            name: "领京豆 / 天天领豆",
+            app: "jd",
+            mode: "search",
+            keyword: "领京豆",
+            status: "path",
+            note: "打开后搜索「领京豆」或「天天领豆」进入"
+          },
+          {
+            id: "path-market",
+            name: "京东超市签到",
+            app: "jd",
+            mode: "search",
+            keyword: "京东超市",
+            status: "path",
+            note: "进超市页后看左上角「签」字入口"
+          },
+          {
+            id: "path-seckill",
+            name: "秒杀领京豆",
+            app: "jd",
+            mode: "search",
+            keyword: "京东秒杀",
+            status: "path",
+            note: "进秒杀页后找「领京豆」入口"
+          },
+          {
+            id: "path-flash",
+            name: "品牌闪购签到",
+            app: "jd",
+            mode: "search",
+            keyword: "品牌闪购",
+            status: "path",
+            note: "进闪购页向下找签到"
+          },
+          {
+            id: "path-plant",
+            name: "种豆得豆",
+            app: "jd",
+            mode: "search",
+            keyword: "种豆得豆",
+            status: "path",
+            note: "或：首页 → 领京豆 → 种豆得豆（旧 H5 已下线）"
+          },
+          {
+            id: "path-mine-bean",
+            name: "我的 · 京豆签到",
+            app: "jd",
+            mode: "home",
+            status: "path",
+            note: "打开 App → 我的 → 京豆 / 去签到"
+          },
+          {
+            id: "path-jr-home",
+            name: "金融 App 签到入口",
+            app: "jdjr",
+            mode: "home",
+            status: "path",
+            note: "打开金融 App → 省钱 / 会员里找每日签到"
+          }
+        ]
       }
     ];
+
+    const BUILTIN = GROUPS.flatMap((g) =>
+      g.items.map((item) => ({ ...item, group: g.title }))
+    );
 
     function todayKey() {
       const d = new Date();
@@ -506,9 +528,20 @@
       toast._t = setTimeout(() => el.classList.remove("show"), 2200);
     }
 
+    function buildJdScheme(params) {
+      const encoded = encodeURIComponent(JSON.stringify(params));
+      if (isAndroid()) {
+        return (
+          "intent://virtual?params=" +
+          encoded +
+          "#Intent;scheme=openapp.jdmobile;package=com.jingdong.app.mall;end"
+        );
+      }
+      return "openapp.jdmobile://virtual?params=" + encoded;
+    }
+
     function buildJdOpenApp(url) {
-      // 补充 sourceType 等字段，减少 App 内 WebView 异常页
-      const params = {
+      return buildJdScheme({
         category: "jump",
         des: "m",
         url,
@@ -516,151 +549,205 @@
         sourceValue: "JSHOP_SOURCE_VALUE",
         M_sourceFrom: "h5auto",
         msf_type: "auto"
-      };
-      const encoded = encodeURIComponent(JSON.stringify(params));
-      // Android 上小写 scheme 更稳；iOS 两种都能识别
-      return "openapp.jdmobile://virtual?params=" + encoded;
+      });
     }
 
-    function buildJdIntent(url) {
-      const params = {
+    function buildJdSearch(keyword) {
+      return buildJdScheme({
         category: "jump",
-        des: "m",
-        url,
-        sourceType: "JSHOP_SOURCE_TYPE",
-        sourceValue: "JSHOP_SOURCE_VALUE"
-      };
-      const encoded = encodeURIComponent(JSON.stringify(params));
-      const fallback = encodeURIComponent(url);
-      return (
-        "intent://virtual?params=" +
-        encoded +
-        "#Intent;scheme=openapp.jdmobile;package=com.jingdong.app.mall;S.browser_fallback_url=" +
-        fallback +
-        ";end"
-      );
+        des: "productList",
+        keyWord: keyword,
+        from: "search",
+        sourceType: "search"
+      });
+    }
+
+    function buildJdHome() {
+      return buildJdScheme({
+        category: "jump",
+        des: "HomePage"
+      });
     }
 
     function buildJrOpenApp(url) {
       return "openjdjrapp://com.jd.jrapp/webview?url=" + encodeURIComponent(url);
     }
 
+    function buildJrHome() {
+      return "openjdjrapp://com.jd.jrapp/main";
+    }
+
     function isAndroid() {
       return /Android/i.test(navigator.userAgent);
     }
 
-    function openLink(item) {
+    function resolveTarget(item) {
+      if (item.mode === "search" && item.keyword) {
+        return {
+          scheme: item.app === "jdjr" ? buildJrHome() : buildJdSearch(item.keyword),
+          fallback: null,
+          toastMsg: "已打开 App，请按备注在搜索结果里进入"
+        };
+      }
+      if (item.mode === "home") {
+        return {
+          scheme: item.app === "jdjr" ? buildJrHome() : buildJdHome(),
+          fallback: null,
+          toastMsg: "已打开 App，请按备注路径操作"
+        };
+      }
+
       const url = item.url;
+      if (!url) {
+        return { scheme: null, fallback: null, toastMsg: "缺少链接" };
+      }
       if (item.app === "web") {
-        location.href = url;
-        return;
+        return { scheme: null, fallback: url, toastMsg: "已打开页面" };
       }
-
-      let scheme = null;
-      if (item.app === "jd") {
-        scheme = isAndroid() ? buildJdIntent(url) : buildJdOpenApp(url);
-      } else if (item.app === "jdjr") {
-        scheme = buildJrOpenApp(url);
+      if (item.app === "jdjr") {
+        return {
+          scheme: buildJrOpenApp(url),
+          fallback: url,
+          toastMsg: "已尝试打开，请在 App 内领取"
+        };
       }
-
-      if (!scheme) {
-        location.href = url;
-        return;
-      }
-
-      const start = Date.now();
-      // 只用一次跳转，避免 iframe + a.click 连发导致 App 打开异常页
-      location.href = scheme;
-
-      setTimeout(() => {
-        if (document.hidden) return;
-        if (Date.now() - start < 2200) {
-          location.href = url;
-        }
-      }, 1200);
+      return {
+        scheme: buildJdOpenApp(url),
+        fallback: url,
+        toastMsg: "已尝试打开，请在 App 内领取"
+      };
     }
 
-    function allItems() {
-      const custom = loadCustom().map((x) => ({ ...x, custom: true }));
-      return [...custom, ...BUILTIN];
+    function openLink(item) {
+      const target = resolveTarget(item);
+      if (target.scheme) {
+        const start = Date.now();
+        location.href = target.scheme;
+        if (target.fallback) {
+          setTimeout(() => {
+            if (document.hidden) return;
+            if (Date.now() - start < 2200) location.href = target.fallback;
+          }, 1200);
+        }
+        return target.toastMsg;
+      }
+      if (target.fallback) {
+        location.href = target.fallback;
+        return target.toastMsg;
+      }
+      return target.toastMsg || "无法打开";
+    }
+
+    function statusTag(item) {
+      if (item.custom) return '<span class="tag custom">自定义</span>';
+      if (item.status === "direct") return '<span class="tag ok">直达签到</span>';
+      if (item.status === "path") return '<span class="tag path">App 路径</span>';
+      if (item.status === "play") return '<span class="tag warn">养成/抽奖</span>';
+      return "";
+    }
+
+    function renderItem(item, done, list) {
+      const isDone = done.has(item.id);
+      const el = document.createElement("article");
+      el.className = "item" + (isDone ? " done" : "");
+      el.dataset.id = item.id;
+
+      const appTag =
+        item.app === "jdjr" ? "金融" : item.app === "web" ? "浏览器" : "京东";
+      const appClass =
+        item.app === "jdjr" ? "jr" : item.app === "web" ? "" : "jd";
+      const hasWeb = Boolean(item.url) && item.mode !== "search" && item.mode !== "home";
+
+      el.innerHTML = `
+        <button type="button" class="check" aria-label="标记已领" title="标记今日已领">
+          <svg viewBox="0 0 12 12" fill="none" aria-hidden="true">
+            <path d="M2.5 6.2L4.8 8.5L9.5 3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="meta">
+          <p class="name"></p>
+          <p class="desc"></p>
+          <div class="tags">
+            <span class="tag ${appClass}">${appTag}</span>
+            ${statusTag(item)}
+          </div>
+        </div>
+        <div class="actions">
+          <button type="button" class="open-app">打开 App</button>
+          ${hasWeb ? '<button type="button" class="open-web">H5</button>' : ""}
+          ${item.custom ? '<button type="button" class="del">删除</button>' : ""}
+        </div>
+      `;
+
+      el.querySelector(".name").textContent = item.name;
+      el.querySelector(".desc").textContent = item.note || item.url || "";
+
+      el.querySelector(".check").addEventListener("click", () => {
+        const set = loadDone();
+        if (set.has(item.id)) set.delete(item.id);
+        else set.add(item.id);
+        saveDone(set);
+        render();
+      });
+
+      el.querySelector(".open-app").addEventListener("click", () => {
+        const msg = openLink(item);
+        const set = loadDone();
+        set.add(item.id);
+        saveDone(set);
+        render();
+        toast(msg);
+      });
+
+      const webBtn = el.querySelector(".open-web");
+      if (webBtn) {
+        webBtn.addEventListener("click", () => {
+          window.open(item.url, "_blank", "noopener,noreferrer");
+        });
+      }
+
+      const del = el.querySelector(".del");
+      if (del) {
+        del.addEventListener("click", () => {
+          const next = loadCustom().filter((x) => x.id !== item.id);
+          saveCustom(next);
+          const set = loadDone();
+          set.delete(item.id);
+          saveDone(set);
+          render();
+          toast("已删除自定义入口");
+        });
+      }
+
+      list.appendChild(el);
     }
 
     function render() {
       const done = loadDone();
       const list = document.getElementById("list");
-      const items = allItems();
       list.innerHTML = "";
 
-      items.forEach((item) => {
-        const isDone = done.has(item.id);
-        const el = document.createElement("article");
-        el.className = "item" + (isDone ? " done" : "");
-        el.dataset.id = item.id;
+      const custom = loadCustom().map((x) => ({
+        ...x,
+        custom: true,
+        status: "direct",
+        group: "我的自定义"
+      }));
 
-        const appTag =
-          item.app === "jdjr" ? "金融" : item.app === "web" ? "浏览器" : "京东";
-        const appClass =
-          item.app === "jdjr" ? "jr" : item.app === "web" ? "" : "jd";
+      if (custom.length) {
+        const h = document.createElement("div");
+        h.className = "group-title";
+        h.textContent = "我的自定义";
+        list.appendChild(h);
+        custom.forEach((item) => renderItem(item, done, list));
+      }
 
-        el.innerHTML = `
-          <button type="button" class="check" aria-label="标记已领" title="标记今日已领">
-            <svg viewBox="0 0 12 12" fill="none" aria-hidden="true">
-              <path d="M2.5 6.2L4.8 8.5L9.5 3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-          <div class="meta">
-            <p class="name"></p>
-            <p class="desc"></p>
-            <div class="tags">
-              <span class="tag ${appClass}">${appTag}</span>
-              ${item.custom ? '<span class="tag custom">自定义</span>' : ""}
-            </div>
-          </div>
-          <div class="actions">
-            <button type="button" class="open-app">打开 App</button>
-            <button type="button" class="open-web">H5</button>
-            ${item.custom ? '<button type="button" class="del">删除</button>' : ""}
-          </div>
-        `;
-
-        el.querySelector(".name").textContent = item.name;
-        el.querySelector(".desc").textContent = item.note || item.url;
-
-        el.querySelector(".check").addEventListener("click", () => {
-          const set = loadDone();
-          if (set.has(item.id)) set.delete(item.id);
-          else set.add(item.id);
-          saveDone(set);
-          render();
-        });
-
-        el.querySelector(".open-app").addEventListener("click", () => {
-          openLink(item);
-          const set = loadDone();
-          set.add(item.id);
-          saveDone(set);
-          render();
-          toast("已尝试打开，请在 App 内领取");
-        });
-
-        el.querySelector(".open-web").addEventListener("click", () => {
-          window.open(item.url, "_blank", "noopener,noreferrer");
-        });
-
-        const del = el.querySelector(".del");
-        if (del) {
-          del.addEventListener("click", () => {
-            const next = loadCustom().filter((x) => x.id !== item.id);
-            saveCustom(next);
-            const set = loadDone();
-            set.delete(item.id);
-            saveDone(set);
-            render();
-            toast("已删除自定义入口");
-          });
-        }
-
-        list.appendChild(el);
+      GROUPS.forEach((group) => {
+        const h = document.createElement("div");
+        h.className = "group-title";
+        h.textContent = group.title;
+        list.appendChild(h);
+        group.items.forEach((item) => renderItem(item, done, list));
       });
     }
 
